@@ -153,6 +153,26 @@ h3{font-size:16px;font-weight:800;margin:0 0 10px}
 .dxb svg{color:#1E9E5F;flex:none}
 .dxb:hover{background:var(--hv);border-color:#1E9E5F}
 .dxb:disabled{opacity:.65;cursor:wait}
+.gcw{position:relative;margin:0 0 20px}
+.gch{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px}
+.gtg{display:inline-flex;border:1px solid var(--ln);border-radius:8px;overflow:hidden}
+.gtg button{background:none;border:0;padding:5px 12px;font-size:12px;font-weight:600;color:var(--mu)}
+.gtg button[aria-pressed=true]{background:var(--a);color:#fff}
+.gsc{overflow-x:auto;overflow-y:hidden;padding-bottom:4px}
+.gax{font-size:10.5px;fill:var(--mu)}
+.gvl{font-size:10px;font-weight:700;paint-order:stroke;stroke:var(--pn);stroke-width:3px;stroke-linejoin:round}
+.gnm{font-size:11px;font-weight:600;fill:var(--ink)}
+.grl{font-size:10.5px;font-weight:700}
+.ggr{font-size:10.5px;font-weight:600}
+.ggr.up{fill:#0E8A55}.ggr.dn{fill:#D6336C}.ggr.na{fill:var(--mu)}
+.gft{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px}
+.gleg{display:flex;gap:18px;font-size:12.5px;color:var(--mu)}
+.gleg i,.gtt i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.gtt{position:absolute;z-index:20;pointer-events:none;background:var(--pn);border:1px solid var(--ln);border-radius:8px;box-shadow:0 8px 24px rgba(16,42,86,.18);padding:9px 12px;font-size:12px;min-width:210px}
+.gtt b{display:block;margin-bottom:4px;font-size:12.5px}
+.gtt div{display:flex;justify-content:space-between;gap:14px;padding:2px 0}
+.gtt em{font-style:normal;font-weight:700;margin-left:4px}
+.gtt em.up{color:#0E8A55}.gtt em.dn{color:#D6336C}.gtt em.na{color:var(--mu)}
 </style>
 </head>
 <body>
@@ -250,12 +270,65 @@ ${cd('Komposisi GMV per Bulan',mo.length?[...mo].sort((a,b)=>a.id-b.id).map(x=>`
 <div class="sg">${sc('bag','c1','Pcs Terjual',nf.format(tp))}${sc('db','c2','GMV per Pcs',tp?rp(t/tp):'-')}${sc('users','c3','Total Creator',nf.format(nc))}${sc('store','c4','Total Toko',tk.length)}${sc('star','c5','Total AC',ac.length)}${sc('tag','c6','Total Brand',br.length)}</div>
 ${g2(cd('GMV per Brand',bars(br,3,11),'br'),cd('GMV per Region',bars(agg(1),1,9),'pf'),cd('GMV per Segmen',bars(agg(2),2,5),'pf'),cd('GMV per Platform',`<div class="sl">${bars(agg(4),4,99)}</div>`),cd('10 Toko Teratas',bars(tk,6,10),'tk'),cd('Nama AC Teratas',bars(ac,5,10),'ac'))}`}
 const g2=(...a)=>`<div class="g2"><div class="gc">${a.filter((_,i)=>i%2==0).join('')}</div><div class="gc">${a.filter((_,i)=>i%2).join('')}</div></div>`;
+/* ===== Grafik pertumbuhan bulanan per Toko / Brand ===== */
+const GM={},GX={},GMC=['#94A3B8','#F97316','#2563EB','#0E7490','#7C3AED','#DB2777'],GMS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const kf=v=>{const a=Math.abs(v),f=(x,d)=>x.toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:d});return a>=1e9?f(v/1e9,2)+' M':a>=1e6?f(v/1e6,a>=1e8?0:1)+' jt':a>=1e3?f(v/1e3,0)+' rb':f(v,0)};
+const msn=b=>{const s=DN[0][b]||'',i=['januari','februari','maret','april','mei','juni','juli','agustus','september','oktober','november','desember'].indexOf(s.toLowerCase());return i<0?s.slice(0,3):GMS[i]};
+const gpc=(c,p)=>p>0?(c/p-1)*100:null;
+const gpf=(c,p)=>p>0?((c/p-1)*100>=0?'+':'')+((c/p-1)*100).toFixed(1).replace('.',',')+'%':c>0?'Baru':'-';
+const gpk=(c,p)=>p>0?(c>=p?'up':'dn'):c>0?'up':'na';
+function gch(id,d){const m=GM[id]||(GM[id]='g'),mo=new Map(),ms=new Set();
+grp([0,d]).forEach(x=>{const[b,k]=x.k;if(b>=MO)return;ms.add(b);let o=mo.get(k);if(!o){o={id:k,t:{g:0,p:0},v:{}};mo.set(k,o)}o.v[b]={g:x.g,p:x.p};o.t.g+=x.g;o.t.p+=x.p});
+const M=[...ms].sort((a,b)=>a-b),R=[...mo.values()].sort((a,b)=>b.t[m]-a.t[m]),nm=d===6?'Toko':'Brand',ml=m==='g'?'GMV':'Pcs Sold';
+GX[id]={d,M,R,m};RG['gc_'+id]=()=>gdraw(id);
+const vv=(o,b)=>o.v[b]?o.v[b][m]:0;
+TD['gc_'+id]={title:`Pertumbuhan ${ml} per ${nm}`,head:[nm,...M.map(b=>`${DN[0][b]} - ${ml}`),...M.slice(1).map((b,j)=>`Growth ${msn(b)} vs ${msn(M[j])} (%)`)],types:['t',...M.map(()=>m),...M.slice(1).map(()=>'n')],
+get:()=>R.map(o=>[DN[d][o.id],...M.map(b=>vv(o,b)),...M.slice(1).map((b,j)=>{const g=gpc(vv(o,b),vv(o,M[j]));return g==null?null:Math.round(g*10)/10})])};
+const title=`${ml} Bulanan per ${nm}${M.length>1?': '+M.map(b=>DN[0][b]).join(' vs '):M.length?': '+DN[0][M[0]]:''}`;
+return `<section class="card gcw"><div class="gch"><span class="ct">${esc(title)}</span><div class="tact"><div class="gtg" role="group" aria-label="Metrik grafik">${[['g','GMV'],['p','Pcs Sold']].map(([k,l])=>`<button type="button" data-gm="${id}|${k}" aria-pressed="${k===m}">${l}</button>`).join('')}</div>${dxBtn('gc_'+id)}</div></div>
+<div class="gsc" id="gc_${id}"></div><div class="gft"><div class="gleg">${M.map(b=>`<span><i style="background:${GMC[b%GMC.length]}"></i>${esc(DN[0][b])}</span>`).join('')}</div><span class="rwn">${R.length} ${nm.toLowerCase()} · diurutkan dari total ${ml} terbesar${R.length*(d===6?96:72)>900?' · geser ke samping untuk melihat semua':''}</span></div><div class="gtt" id="gt_${id}" hidden></div></section>`}
+function gdraw(id){const el=$('#gc_'+id),X=GX[id];if(!el||!X)return;const{d,M,R,m}=X;
+if(!R.length||!M.length){el.innerHTML='<p class="rwn" style="padding:24px 0">Tidak ada data untuk filter ini.</p>';return}
+const W0=Math.max(320,el.clientWidth),L=74,T=26,CH=250,nr=M.length-1,LH=17,NH=36,cw=Math.max(d===6?96:72,(W0-L-12)/R.length),W=Math.ceil(L+cw*R.length+12),H=T+CH+24+NH+nr*LH+6,
+vv=(o,b)=>o.v[b]?o.v[b][m]:0;
+let mx=0;R.forEach(o=>M.forEach(b=>{mx=Math.max(mx,vv(o,b))}));
+const raw=Math.max(mx,1)/4,p10=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/p10,st=(f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p10,ym=Math.max(st,Math.ceil(mx*1.08/st)*st);
+const y=v=>T+CH-v/ym*CH,x=i=>L+cw*i+cw/2;
+let s=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik ${m==='g'?'GMV':'Pcs'} bulanan per ${d===6?'toko':'brand'}" style="display:block">`;
+for(let t=0;t<=ym+1e-9;t+=st){const yy=y(t).toFixed(1);s+=`<line x1="${L}" x2="${W-6}" y1="${yy}" y2="${yy}" stroke="var(--ln)" ${t?'stroke-dasharray="3 4"':''}/><text x="${L-10}" y="${+yy+4}" text-anchor="end" class="gax">${t?kf(t):'0'}</text>`}
+s+=`<rect id="gb_${id}" x="0" y="${T-8}" width="${cw}" height="${CH+8}" fill="var(--hv)" opacity="0" rx="6"/>`;
+M.forEach(b=>{const c=GMC[b%GMC.length];s+=`<polyline fill="none" stroke="${c}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" points="${R.map((o,i)=>x(i).toFixed(1)+','+y(vv(o,b)).toFixed(1)).join(' ')}"/>`});
+R.forEach((o,i)=>{const pts=M.map(b=>({b,v:vv(o,b)})).sort((a,b)=>a.v-b.v),n=pts.length;let ly=0;
+pts.forEach((p,r)=>{p.y=y(p.v);if(n>1&&r===0)p.ly=p.y+15;else{p.ly=p.y-8;if(r>0&&p.ly>ly-12)p.ly=ly-12}ly=p.ly;
+if(n>1&&r===1&&pts[0].ly-p.y<0)pts[0].ly=p.y+15});
+pts.forEach(p=>{const c=GMC[p.b%GMC.length];s+=`<circle cx="${x(i).toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.6" fill="${c}" stroke="var(--pn)" stroke-width="1.5"/>`});
+pts.forEach(p=>{const c=GMC[p.b%GMC.length];s+=`<text x="${x(i).toFixed(1)}" y="${p.ly.toFixed(1)}" text-anchor="middle" class="gvl" fill="${c}">${kf(p.v)}</text>`})});
+const by=T+CH+24,cpl=Math.max(6,Math.floor((cw-8)/6.4));
+R.forEach((o,i)=>{const w=String(DN[d][o.id]).split(/\s+/),ln=['',''];let k=0;for(const t of w){if(!ln[k]){ln[k]=t;continue}if((ln[k]+' '+t).length<=cpl)ln[k]+=' '+t;else if(k===0){k=1;ln[1]=t}else{ln[1]+=' '+t}}
+ln[0]=ln[0].length>cpl?ln[0].slice(0,cpl-1)+'…':ln[0];ln[1]=ln[1].length>cpl?ln[1].slice(0,cpl-1)+'…':ln[1];
+s+=`<text x="${x(i).toFixed(1)}" y="${by+12}" text-anchor="middle" class="gnm"><tspan x="${x(i).toFixed(1)}">${esc(ln[0])}</tspan>${ln[1]?`<tspan x="${x(i).toFixed(1)}" dy="13">${esc(ln[1])}</tspan>`:''}</text>`;
+M.slice(1).forEach((b,j)=>{const c=vv(o,b),p=vv(o,M[j]);s+=`<text x="${x(i).toFixed(1)}" y="${by+NH+12+j*LH}" text-anchor="middle" class="ggr ${gpk(c,p)}">${gpf(c,p)}</text>`})});
+s+=`<text x="8" y="${by+12}" class="gnm" style="font-weight:700">${d===6?'Toko':'Brand'}</text>`;
+M.slice(1).forEach((b,j)=>{s+=`<text x="8" y="${by+NH+12+j*LH}" class="grl" fill="${GMC[b%GMC.length]}">${msn(b)} vs ${msn(M[j])}</text>`});
+R.forEach((o,i)=>{s+=`<rect data-gh="${id}|${i}" x="${(L+cw*i).toFixed(1)}" y="${T-8}" width="${cw.toFixed(1)}" height="${H-T+8}" fill="transparent"/>`});
+el.innerHTML=s+'</svg>'}
+function gtip(e){const r=e.target.closest&&e.target.closest('[data-gh]');
+document.querySelectorAll('.gtt').forEach(t=>{if(!r||t.id!=='gt_'+r.dataset.gh.split('|')[0]){t.hidden=true;const b=$('#gb_'+t.id.slice(3));if(b)b.setAttribute('opacity','0')}});
+if(!r)return;const[id,i]=r.dataset.gh.split('|'),X=GX[id],o=X.R[+i],tt=$('#gt_'+id),bx=$('#gb_'+id),cw=+r.getAttribute('width');
+bx.setAttribute('x',r.getAttribute('x'));bx.setAttribute('width',cw);bx.setAttribute('opacity','1');
+const vv=b=>o.v[b]?o.v[b][X.m]:0,fv=v=>X.m==='g'?rp(v):nf.format(v)+' pcs';
+tt.innerHTML=`<b>${esc(DN[X.d][o.id])}</b>`+X.M.map((b,j)=>`<div><span><i style="background:${GMC[b%GMC.length]}"></i>${esc(DN[0][b])}</span><span>${fv(vv(b))}${j?` <em class="${gpk(vv(b),vv(X.M[j-1]))}">${gpf(vv(b),vv(X.M[j-1]))}</em>`:''}</span></div>`).join('');
+tt.hidden=false;const host=tt.parentElement.getBoundingClientRect(),rr=r.getBoundingClientRect(),tw=tt.offsetWidth;
+let lx=rr.right-host.left+8;if(lx+tw>host.width-8)lx=rr.left-host.left-tw-8;tt.style.left=Math.max(8,lx)+'px';tt.style.top=Math.max(8,e.clientY-host.top-tt.offsetHeight/2)+'px'}
+document.addEventListener('mousemove',gtip);
+document.addEventListener('click',e=>{const b=e.target.closest('[data-gm]');if(!b)return;const[id,k]=b.dataset.gm.split('|');if(GM[id]===k)return;GM[id]=k;draw()});
+let gRz;window.addEventListener('resize',()=>{clearTimeout(gRz);gRz=setTimeout(()=>Object.keys(GX).forEach(gdraw),150)});
 const VW={ov,
 pf:()=>g2(lt('a1','Performance GMV by Region',[0,1],{nc:1}),lt('a2','Performance GMV by Brand',[0,3],{nc:1}),lt('a3','Performance GMV by Segment',[0,2],{nc:1}),lt('a4','Performance GMV by AC',[0,5],{nc:1}),lt('a5','Performance GMV by Creator',[0,7]),lt('a6','Performance GMV by Toko',[0,6],{nc:1})),
 cr:()=>g2(`<section class="lk"><h3>Top 10 Creators by GMV</h3>${bl(grp([7]).slice(0,10).map(x=>[DN[7][x.k[0]],x.g]),rp)}</section>`,`<section class="lk"><h3>#Creator by Platform</h3>${bl(grp([4],1).map(x=>[DN[4][x.k[0]],x.n]).sort((a,b)=>b[1]-a[1]),nf.format)}</section>`)+
 lt('c1','Tiering Creator by Total GMV',[7],{tier:0,heat:1})+lt('c2','Tiering Creator by Segment',[7,2],{tier:0,heat:1})+lt('c3','Performance Creator by GMV',[0,1,7,3],{heat:1}),
-tk:()=>pv('p1','Performance Distribution Toko by Brand',6,3,['g'],D.tt)+tbl('k2','Performance Distribution Toko by Region',[['Toko','t'],['Tiering','t'],['Region','t'],['Pcs Sold','p'],['GMV (Rp)','g']],grp([6,1]).map(x=>[DN[6][x.k[0]],D.tt[x.k[0]],DN[1][x.k[1]],x.p,x.g]),{heat:1}),
-br:()=>pv('p3','Brand GMV Distribution by Region',3,1,['p','g'],D.bt)+g2(lt('b1','Performance GMV Brand by Creator',[3,7]),lt('b2','Performance GMV Brand by Toko',[3,6])),
+tk:()=>gch('tk',6)+pv('p1','Performance Distribution Toko by Brand',6,3,['g'],D.tt)+tbl('k2','Performance Distribution Toko by Region',[['Toko','t'],['Tiering','t'],['Region','t'],['Pcs Sold','p'],['GMV (Rp)','g']],grp([6,1]).map(x=>[DN[6][x.k[0]],D.tt[x.k[0]],DN[1][x.k[1]],x.p,x.g]),{heat:1}),
+br:()=>gch('br',3)+pv('p3','Brand GMV Distribution by Region',3,1,['p','g'],D.bt)+g2(lt('b1','Performance GMV Brand by Creator',[3,7]),lt('b2','Performance GMV Brand by Toko',[3,6])),
 ac:()=>g2(lt('d1','AC GMV Distribution by Brand',[5,3]),lt('d2','Performance GMV AC by Creator',[5,7]))+lt('d3','Performance GMV AC by Toko',[5,6]),
 tr:()=>`<div class="note">Tier ditentukan dari total GMV creator selama Juli sampai September (tetap, tidak berubah oleh filter). Tier A mulai Rp 654 jt, Tier B Rp 65 jt, Tier C Rp 20 jt, Tier D Rp 6,5 jt, di bawahnya Emerging Creator. GMV, Pcs, dan Jumlah creator mengikuti filter.</div>`+
 tbl('t1','GMV per tier creator',[['Tier','t'],['Pcs Sold','p'],['GMV (Rp)','g'],['Jumlah creator','n']],grp([8],1).sort((a,b)=>a.k[0]-b.k[0]).map(x=>[DN[8][x.k[0]],x.p,x.g,x.n]))};
